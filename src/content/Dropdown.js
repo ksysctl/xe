@@ -3,7 +3,7 @@ import React from 'react';
 class Dropdown extends React.Component {
     render() {
         return (
-            <div>
+            <div className="dropdown">
                 <label htmlFor={ this.props.id }>{ this.props.display }
                     <select
                         name={ this.props.id }

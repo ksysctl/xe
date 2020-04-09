@@ -3,7 +3,7 @@ import React from 'react';
 class Numeric extends React.Component {
     render() {
         return (
-            <div>
+            <div className="numeric">
                 <label htmlFor={ this.props.id }>{ this.props.display }
                     <input
                         type="number"
