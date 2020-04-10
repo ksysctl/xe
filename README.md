@@ -1,6 +1,6 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-![xe](https://raw.githubusercontent.com/ksysctl/xe/master/public/screenshot.png)
+![xe](https://github.com/ksysctl/xe/blob/master/public/screenshot.png?raw=true)
 
 
 ## Available Scripts
