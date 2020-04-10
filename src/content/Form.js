@@ -229,7 +229,7 @@ class Form extends React.Component {
                         </li>
                         <li className="list-group-item font-weight-bold">
                             <span className="result-sm">
-                                { this.state.amount } { this.state.from } = { this.state.rate } { this.state.from }
+                                1 { this.state.from } = { this.state.rate } { this.state.from }
                             </span>
                         </li>
                         <li className="list-group-item">
