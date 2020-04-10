@@ -1,7 +1,8 @@
 import React from 'react';
-import './App.css';
 import Header from './layout/Header';
 import Form from './content/Form';
+
+import './App.css';
 
 class App extends React.Component {
   render() {

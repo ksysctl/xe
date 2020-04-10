@@ -1,16 +1,21 @@
 import React from 'react';
-import Dropdown from './Dropdown';
-import Numeric from './Numeric';
+import Dropdown from './controls/Dropdown';
+import Numeric from './controls/Numeric';
+
+import convert from './payload/convert.json';
+import symbols from './payload/symbols.json';
 
 const API_URL = 'http://data.fixer.io/api/';
 const API_KEY = 'f1b1366b496bedfeeecb78075a2d1c3d';
 const API_ENDPOINT_SYMBOLS = 'symbols';
+const API_ENDPOINT_CONVERT = 'convert';
 
 class Form extends React.Component {
     constructor(props) {
         super(props);
 
         this.state = {
+            clicked: false,
             amount: 1,
             from: 'CRC',
             to: 'USD',
@@ -18,6 +23,7 @@ class Form extends React.Component {
             timestamp: '',
             rate: '',
             currencies: [],
+            error: '',
             validations: {
                 amount: '',
                 from: '',
@@ -30,26 +36,69 @@ class Form extends React.Component {
     }
 
     componentDidMount() {
-        fetch(API_URL + API_ENDPOINT_SYMBOLS + '?access_key=' + API_KEY)
+        fetch(`${API_URL}${API_ENDPOINT_SYMBOLS}?access_key=${API_KEY}`)
             .then(res => res.json())
             .then(
                 (res) => {
+                    if (res && !res.success && res.error.code === 105) {
+                        res = symbols;
+                    }
+
+                    if (res && res.success) {
+                        this.setState({
+                            currencies: Object.keys(res.symbols).map((key) => {
+                                return {
+                                    value: key,
+                                    name: res.symbols[key]
+                                };
+                            })
+                        });
+
+                        this.setState({
+                            options: this.state.currencies.map((option) =>
+                                <option key={option.value} value={option.value}>{option.name}</option>
+                            )
+                        });
+                    } else if (!res) {
+                        this.setState({
+                            error: 'Failed to load response data'
+                        });
+
+                        this.setAPIError();
+                    } else {
+                        this.setState({
+                            error: res.error.info
+                        });
+
+                        this.setAPIError();
+                    }
+            },
+            (error) => {
                 this.setState({
-                    currencies:  Object.keys(res.symbols).map((key) => {
-                        return {
-                            value: key,
-                            name: res.symbols[key]
-                        };
-                    })
+                    error: error.toString()
                 });
 
-                this.setState({
-                    options: this.state.currencies.map((option) =>
-                        <option key={ option.value } value={ option.value }>{ option.name }</option>
-                    )
-                });
-            });
+                this.setAPIError();
+            }
+        )
     }
+
+    setAPIError = () => {
+        let message = 'Currencies no available';
+
+        this.setState(prevState => {
+            const validations = {
+                ...prevState.validations
+            };
+
+            validations.from = message;
+            validations.to = message;
+
+            return {
+                validations
+            }
+        })
+    };
 
     onChange = (event) => {
         this.setState({
@@ -73,19 +122,65 @@ class Form extends React.Component {
     };
 
     onSubmit = (event) => {
-        this.setState({
-            result:
-            new Intl.NumberFormat(
-                'en-IN').format(this.state.amount)
-            }
-        );
-        this.setState({timestamp: '2010-01-07'});
-        this.setState({
-            rate:
-                new Intl.NumberFormat(
-                    'en-IN').format(3.34)
-            }
-        );
+        fetch(`${API_URL}${API_ENDPOINT_CONVERT}?access_key=${API_KEY}&from=${this.state.from}&to=${this.state.to}&amount=${this.state.amount}`)
+            .then(res => res.json())
+            .then(
+                (res) => {
+                    if (res && !res.success && res.error.code === 105) {
+                        res = convert;
+
+                        this.setState({
+                            error: 'Using mock response due to API limitations'
+                        });
+                    }
+
+                    if (res && res.success) {
+                        this.setState({amount: new Intl.NumberFormat('en-US').format(res.query.amount)});
+                        this.setState({from: res.query.from});
+                        this.setState({to: res.query.to});
+
+                        this.setState({result: new Intl.NumberFormat('en-US').format(res.result)});
+                        this.setState({rate: new Intl.NumberFormat('en-US').format(res.info.rate)});
+
+                        this.setState({
+                            timestamp:
+                                new Intl.DateTimeFormat(
+                                    'en-US', {
+                                        year: 'numeric',
+                                        month: '2-digit',
+                                        day: '2-digit',
+                                        hour: '2-digit',
+                                        minute: '2-digit',
+                                        second: '2-digit'
+                                    }
+                                ).format(res.info.timestamp)
+                        });
+
+                        this.setState({
+                            clicked: true
+                        });
+                    } else if (!res) {
+                        this.setState({
+                            error: 'Failed to load response data'
+                        });
+
+                        this.setAPIError();
+                    } else {
+                        this.setState({
+                            error: res.error.info
+                        });
+
+                        this.setAPIError();
+                    }
+                },
+                (error) => {
+                    this.setState({
+                        error: error.toString()
+                    });
+
+                    this.setAPIError();
+                }
+            );
 
         event.preventDefault();
     };
@@ -93,39 +188,58 @@ class Form extends React.Component {
     render() {
         return (
             <form onSubmit={ this.onSubmit }>
-                <Numeric action={ this.onChangeNumeric }
-                    display="Amount"
-                    placeholder="Enter amount"
-                    id="amount"
-                    value={ this.state.amount }
-                    validations={ this.state.validations.amount }
-                />
+                <div className="form-row">
+                    <Numeric action={ this.onChangeNumeric }
+                        display="Amount"
+                        placeholder="Enter amount"
+                        id="amount"
+                        value={ this.state.amount }
+                        validations={ this.state.validations.amount }
+                    />
 
-                <Dropdown action={ this.onChange }
-                    display="From"
-                    id="from"
-                    value={ this.state.from }
-                    options={ this.state.options }
-                    validations={ this.state.validations.from }
-                />
-                <Dropdown action={ this.onChange }
-                    display="To"
-                    id="to"
-                    value={ this.state.to }
-                    options={ this.state.options }
-                    validations={ this.state.validations.to }
-                />
+                    <Dropdown action={ this.onChange }
+                        display="From"
+                        id="from"
+                        value={ this.state.from }
+                        options={ this.state.options }
+                        validations={ this.state.validations.from }
+                    />
+                    <Dropdown action={ this.onChange }
+                        display="To"
+                        id="to"
+                        value={ this.state.to }
+                        options={ this.state.options }
+                        validations={ this.state.validations.to }
+                    />
 
-                <button disabled={ this.state.validations.amount }
-                    type="submit"
-                >
-                    Convert
-                </button>
+                    <button
+                        className="btn btn-primary btn-lg btn-block"
+                        type="submit"
+                    >
+                        Convert
+                    </button>
+                </div>
 
-                <div className="summary">
-                    <span id="result"> { this.state.result } </span>
-                    <span id="timestamp"> { this.state.timestamp } </span>
-                    <span id="rate"> { this.state.rate } </span>
+                <div className={`center-block ${this.state.validations.amount || !this.state.clicked ? "d-none" : ""}`}>
+                    <ul className="list-group list-group-flush">
+                        <li className="list-group-item font-weight-bold">
+                            <span className="result-md">{ this.state.amount } { this.state.from } = </span>
+                            <span className="result-lg">{ this.state.result } </span>
+                            <span className="result-md">{ this.state.to }</span>
+                        </li>
+                        <li className="list-group-item font-weight-bold">
+                            <span className="result-sm">
+                                { this.state.amount } { this.state.from } = { this.state.rate } { this.state.from }
+                            </span>
+                        </li>
+                        <li className="list-group-item">
+                            <small className="text-muted">Last updated: { this.state.timestamp }</small>
+                        </li>
+                    </ul>
+                </div>
+
+                <div className={`alert alert-warning center-block ${this.state.error ? "" : "d-none"}`} role="alert">
+                    { this.state.error }
                 </div>
             </form>
         );

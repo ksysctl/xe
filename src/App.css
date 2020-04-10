@@ -37,3 +37,18 @@
     transform: rotate(360deg);
   }
 }
+
+.result-sm {
+  color: #e6d37e;
+  font-size: calc(8px + 2vmin);
+}
+
+.result-md {
+  color: #4d4666;
+  font-size: calc(16px + 2vmin);
+}
+
+.result-lg {
+  color: #4d4666;
+  font-size: calc(64px + 2vmin);
+}
