@@ -1,6 +1,8 @@
 import React from 'react';
 import Dropdown from './controls/Dropdown';
 import Numeric from './controls/Numeric';
+import Summary from './controls/Summary';
+import Message from './controls/Message';
 
 import convert from './payload/convert.json';
 import symbols from './payload/symbols.json';
@@ -220,27 +222,20 @@ class Form extends React.Component {
                     </button>
                 </div>
 
-                <div className={`center-block ${this.state.validations.amount || !this.state.clicked ? "d-none" : ""}`}>
-                    <ul className="list-group list-group-flush">
-                        <li className="list-group-item font-weight-bold">
-                            <span className="result-md">{ this.state.amount } { this.state.from } = </span>
-                            <span className="result-lg">{ this.state.result } </span>
-                            <span className="result-md">{ this.state.to }</span>
-                        </li>
-                        <li className="list-group-item font-weight-bold">
-                            <span className="result-sm">
-                                1 { this.state.from } = { this.state.rate } { this.state.to }
-                            </span>
-                        </li>
-                        <li className="list-group-item">
-                            <small className="text-muted">Last updated: { this.state.timestamp }</small>
-                        </li>
-                    </ul>
-                </div>
+                <Summary
+                     timestamp={ this.state.timestamp }
+                     rate={ this.state.rate }
+                     result={ this.state.result }
+                     to={ this.state.to }
+                     from={ this.state.from }
+                     amount={ this.state.amount }
+                     clicked={ this.state.clicked }
+                     validations={ this.state.validations.amount }
+                />
 
-                <div className={`alert alert-warning center-block ${this.state.error ? "" : "d-none"}`} role="alert">
-                    { this.state.error }
-                </div>
+                <Message
+                    error={ this.state.error }
+                />
             </form>
         );
     };
