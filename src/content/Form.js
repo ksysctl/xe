@@ -5,7 +5,7 @@ import Numeric from './controls/Numeric';
 import convert from './payload/convert.json';
 import symbols from './payload/symbols.json';
 
-const API_URL = 'http://data.fixer.io/api/';
+const API_URL = 'https://data.fixer.io/api/';
 const API_KEY = 'f1b1366b496bedfeeecb78075a2d1c3d';
 const API_ENDPOINT_SYMBOLS = 'symbols';
 const API_ENDPOINT_CONVERT = 'convert';

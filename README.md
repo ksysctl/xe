@@ -2,6 +2,8 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ![xe](https://github.com/ksysctl/xe/blob/master/public/screenshot.png?raw=true)
 
+## Demo
+http://ksysctl.github.io/xe
 
 ## Available Scripts
 
