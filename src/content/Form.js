@@ -44,6 +44,10 @@ class Form extends React.Component {
                 (res) => {
                     if (res && !res.success && res.error.code === 105) {
                         res = symbols;
+
+                        this.setState({
+                            error: 'Using mock response due to API limitations'
+                        });
                     }
 
                     if (res && res.success) {
@@ -74,15 +78,15 @@ class Form extends React.Component {
 
                         this.setAPIError();
                     }
-            },
-            (error) => {
-                this.setState({
-                    error: error.toString()
-                });
+                },
+                (error) => {
+                    this.setState({
+                        error: error.toString()
+                    });
 
-                this.setAPIError();
-            }
-        )
+                    this.setAPIError();
+                }
+            )
     }
 
     setAPIError = () => {
